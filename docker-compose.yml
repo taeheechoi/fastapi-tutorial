@@ -18,7 +18,7 @@ services:
   db:
     image: postgres:13-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data # \\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\ volume location
     env_file:
       - ./backend/.env
     ports:

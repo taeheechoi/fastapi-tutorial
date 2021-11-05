@@ -31,3 +31,4 @@ docker-compose exec db psql -h localhost -U postgres --dbname=postgres
 ### References:
 - https://stackoverflow.com/questions/68273745/how-to-make-a-mount-shared-in-docker
 - https://stackoverflow.com/questions/56291492/how-to-save-a-file-in-vscode-remote-ssh-with-a-non-root-user-privileges
+- https://stackoverflow.com/questions/43181654/locating-data-volumes-in-docker-desktop-windows
