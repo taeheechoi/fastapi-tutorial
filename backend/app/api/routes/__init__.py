@@ -1,7 +1,10 @@
 from fastapi import APIRouter
 
-from app.api.routes.contacts import router as contacts_router
+from app.api.routes.cleanings import router as cleanings_router
+
 
 router = APIRouter()
 
-router.include_router(contacts_router, prefix="/contacts", tags=["contacts"])
+
+router.include_router(
+    cleanings_router, prefix="/cleanings", tags=["cleanings"])
