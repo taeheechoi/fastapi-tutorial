@@ -39,6 +39,74 @@ docker-compose exec db psql -h localhost -U postgres --dbname=postgres
 ### Hooking fastapi endpoints up to a postgres database
 - Pydantic - declare the 'shape' of the data as classes with attributes. each attribute has a type.
 
+- dataclasses are just classes that contain primarily data.
+```python
+@dataclass
+class InventoryItem:
+    """Class for keeping track of an item in inventory."""
+    name: str
+    unit_price: float
+    quantity_on_hand: int = 0
+    def total_cost(self) -> float:
+        return self.unit_price * self.quantity_on_hand
+
+class Item:
+    def __init__(self, *, name: str, unit_price: float, quantity_on_hand: int = 0) -> None: // *: kwargs
+        self.name = name
+        self.unit_price = unit_price
+        self.quantity_on_hand = quantity_on_hand
+    def total_cost(self) -> float:
+        return self.unit_price * self.quantity_on_hand
+
+```
+- Pydantic's BaseModel: dataclasses + data validation + data type corecion
+- app/models/core.py, cleaning.py
+    - BaseModel 
+        - CoreModel(BaseModel), IDModelMixin(BaseModel)
+            - CleaningBase(CoreModel) : Optional type
+                - CleaningCreate(CleaningBase)
+                - CleaningUpdate(CleaningBase)
+                - CleaningInDB(IDModelMixin, CleaningBase)
+                - CleaningPublic(IDModelMixin, CleaningBase)
+
+- Repositories: for business(application) logic
+- app/db/repositories/base.py, cleanings.py
+    - base.py: reference to database connection. BaseRepository 
+    - cleanings.py
+        - CleaningRepository(BaseRepository)
+            - create_cleaning: CleaningCreate instance --> dictionary --> insert --> return CleaningInDB instance
+            ```python
+            new_cleaning = CleaningCreate(name="Clean My House", cleaning_type="full_clean", price="29.99")
+            query_values = new_cleaning.dict()
+            print(query_values)
+            # {"name": "Clean My House", "cleaning_type": "full_clean", "price": 29.99, "description": None}
+            cleaning = await self.db.fetch_one(query=CREATE_CLEANING_QUERY, values=query_values)
+            print(cleaning)
+            # {"name": "Clean My House", "cleaning_type": "full_clean", "price": 29.99, "description": None}
+            result = CleaningInDB(**cleaning)
+            print(result)
+            # CleaningInDB(name="Clean My House", cleaning_type="full_clean", price="29.99")
+            ```
+- Dependencies: Read again
+- app/api/dependencies/database.py: get_databse, get_repository
+```python
+@router.post("/", response_model=CleaningPublic, name="cleanings:create-cleaning", status_code=HTTP_201_CREATED)  
+async def create_new_cleaning(
+    new_cleaning: CleaningCreate = Body(..., embed=True),
+    cleanings_repo: CleaningsRepository = Depends(get_repository(CleaningsRepository)),
+) -> CleaningPublic:
+    created_cleaning = await cleanings_repo.create_cleaning(new_cleaning=new_cleaning)
+
+    return created_cleaning
+```
+
+- new_cleaning: CleaningCreate
+    - Read the body of the request as JSON.
+    - Convert the corresponding types.
+    - Validate the data.
+    - Respond with an error if validation fails, or provide the route with the model instance needed.
+
+
 ### References:
 - https://stackoverflow.com/questions/68273745/how-to-make-a-mount-shared-in-docker
 - https://stackoverflow.com/questions/56291492/how-to-save-a-file-in-vscode-remote-ssh-with-a-non-root-user-privileges
