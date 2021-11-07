@@ -88,7 +88,7 @@ class Item:
             # CleaningInDB(name="Clean My House", cleaning_type="full_clean", price="29.99")
             ```
 - Dependencies: Read again
-- app/api/dependencies/database.py: get_databse, get_repository
+- app/api/dependencies/database.py: get_database, get_repository
 ```python
 @router.post("/", response_model=CleaningPublic, name="cleanings:create-cleaning", status_code=HTTP_201_CREATED)  
 async def create_new_cleaning(
@@ -105,6 +105,54 @@ async def create_new_cleaning(
     - Convert the corresponding types.
     - Validate the data.
     - Respond with an error if validation fails, or provide the route with the model instance needed.
+
+### Testing fastapi endpoints with docker and pytest
+https://www.jeffastor.com/blog/testing-fastapi-endpoints-with-docker-and-pytest
+- requirements.txt
+```
+# dev
+pytest==6.2.1
+pytest-asyncio==0.14.0
+httpx==0.16.1
+asgi-lifespan==1.0.1
+```
+- tests/conftest.py
+    - conftest.py: config for testing. scope="session", apply_migrations, app, db, client
+
+- app/db/tasks.py: f"{DATABASE_URL}_test" if os.environ.get("TESTING") else DATABASE_URL
+- app/db/migrations/env.py: migration to test database, DB_URL = f"{DATABASE_URL}_test" if os.environ.get("TESTING") else str(DATABASE_URL)
+
+```python
+@pytest.fixture(scope="session")
+...
+alembic.command.upgrade(config, "head")
+yield
+alembic.command.downgrade(config, "base")
+```
+- session: optional, speed up our tests significantly since we don't apply and rollback our migrations for each test.
+
+```python
+default_engine = create_engine(str(DATABASE_URL), ISOLATION_LEVEL_AUTOCOMMIT)
+```
+- ISOLATION_LEVEL_AUTOCOMMIT: to avoid manual transaction management when creating databases. end each open transaction automatically after execution. allow to drop a database and then create a new one inside of default connection. Read again.
+
+testing
+```
+$ docker ps
+$ docker exec -it [CONTAINER_ID] bash
+$ pytest -v
+```
+- tests/test_cleanings.py
+    - test_cleanings.py
+        - TestCleaningsRoutes
+            - test_routes_exist
+            - test_invalid_input_raises_error
+        - TestCreateCleaning
+            - test_valid_input_creates_cleaning
+            - @pytest.mark.parametrize
+            - test_invalid_input_raises_error
+            - test_get_cleaning_by_id  -> routes/cleanings.py -> db/repositories/cleanings.py
+            - test_wrong_id_returns_error
 
 
 ### References:
