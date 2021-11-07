@@ -154,7 +154,20 @@ $ pytest -v
             - test_get_cleaning_by_id  -> routes/cleanings.py -> db/repositories/cleanings.py
             - test_wrong_id_returns_error
 
+- @pytest.mark.parametrize: for multiple testing
+```python
+@pytest.mark.parametrize(
+        "invalid_payload, status_code",
+        (
+            (None, 422),
+            ({}, 422),
+            ({"name": "test_name"}, 422),
+            ({"price": 10.00}, 422),
+            ({"name": "test_name", "description": "test"}, 422),
+        ),
+    )
 
+```
 ### References:
 - https://stackoverflow.com/questions/68273745/how-to-make-a-mount-shared-in-docker
 - https://stackoverflow.com/questions/56291492/how-to-save-a-file-in-vscode-remote-ssh-with-a-non-root-user-privileges
