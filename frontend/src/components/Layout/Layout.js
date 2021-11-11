@@ -5,6 +5,7 @@ import euiVars from "@elastic/eui/dist/eui_theme_light.json"
 import "@elastic/eui/dist/eui_theme_light.css"
 import "../../assets/css/fonts.css"
 import "../../assets/css/override.css"
+import { Navbar } from ".."
 
 const customTheme = {
     ...euiVars,
@@ -39,6 +40,7 @@ export default function Layout({ children }) {
       </Helmet>
       <ThemeProvider theme={customTheme}>
         <StyledLayout>
+          <Navbar />
           <StyledMain>{children}</StyledMain>
         </StyledLayout>
       </ThemeProvider>
