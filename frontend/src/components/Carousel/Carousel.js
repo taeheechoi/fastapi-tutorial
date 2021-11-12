@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from "react"
+import React, { Fragment} from "react"
 import { EuiPanel } from "@elastic/eui"
+import { motion, AnimatePresence } from "framer-motion"
 import styled from "styled-components"
 
 const CarouselWrapper = styled.div`
@@ -18,25 +19,42 @@ const StyledEuiPanel = styled(EuiPanel)`
     width: 100%;
     border-radius: 50%;
   }
-`
-export default function Carousel({ items, interval = 3000, ...props }) {
-  const [current, setCurrent] = useState(0)
 
-  useEffect(() => {
-    const next = (current + 1) % items.length
-    const id = setTimeout(() => setCurrent(next), interval)
-    return () => clearTimeout(id)
-  }, [current, items.length, interval])
+  @media screen and (max-width: 450px) {
+    height: calc(100vw - 25px);
+    width: calc(100vw - 25px);
+  }  
+`
+
+const transitionDuration = 0.4
+const transitionEase = [0.68, -0.55, 0.265, 1.55]
+
+export default function Carousel({ items = [], current }) {
 
   return (
-    <CarouselWrapper {...props}>
-      {items.map((item, i) =>
-        current === i ? (
-          <div key={i}>
-            <StyledEuiPanel paddingSize="l">{item.content}</StyledEuiPanel>
-          </div>
-        ) : null
-      )}
+    <CarouselWrapper>
+       <AnimatePresence exitBeforeEnter>
+        {items.map((item, i) =>
+          current === i ? (
+            <Fragment key={i}>
+              <motion.div
+                key={i}
+                initial="left"
+                animate="present"
+                exit="right"
+                variants={{
+                  left: { opacity: 0, x: -70 },
+                  present: { opacity: 1, x: 0 },
+                  right: { opacity: 0, x: 70 }
+                }}
+                transition={{ duration: transitionDuration, ease: transitionEase }}
+              >
+                <StyledEuiPanel paddingSize="l">{item.content}</StyledEuiPanel>
+              </motion.div>
+            </Fragment>
+          ) : null
+        )}
+      </AnimatePresence>
     </CarouselWrapper>
   )
 }

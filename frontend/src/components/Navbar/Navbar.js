@@ -11,6 +11,7 @@ import {
 } from "@elastic/eui"
 import loginIcon from "../../assets/img/loginIcon.svg"
 import styled from "styled-components"
+import { Link } from "react-router-dom"
 
 const LogoSection = styled(EuiHeaderLink)`
   padding: 0 2rem;
@@ -45,7 +46,9 @@ export default function Navbar({ user, ...props }) {
                     {user?.profile ? (
                         <EuiAvatar size="l" name={user.profile.full_name} imageUrl={user.profile.image} />
                     ) : (
-                        <EuiAvatar size="l" color="#1E90FF" name="user" imageUrl={loginIcon} />
+                        <Link to="/login">
+                            <EuiAvatar size="l" color="#1E90FF" name="user" imageUrl={loginIcon} />
+                        </Link>
                     )}
                 </EuiHeaderSectionItemButton>
             </EuiHeaderSection>
