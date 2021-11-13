@@ -12,12 +12,13 @@ import {
 import loginIcon from "../../assets/img/loginIcon.svg"
 import styled from "styled-components"
 import { Link } from "react-router-dom"
+import { connect } from "react-redux"
 
 const LogoSection = styled(EuiHeaderLink)`
   padding: 0 2rem;
 `
 
-export default function Navbar({ user, ...props }) {
+function Navbar({ user, ...props }) {
     return (
         <EuiHeader style={props.style || {}}>
             <EuiHeaderSection>
@@ -56,3 +57,4 @@ export default function Navbar({ user, ...props }) {
     )
 }
 
+export default connect((state) => ({ user: state.auth.user }))(Navbar) 
