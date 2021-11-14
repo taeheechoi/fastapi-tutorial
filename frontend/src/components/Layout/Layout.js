@@ -6,6 +6,9 @@ import euiVars from "@elastic/eui/dist/eui_theme_light.json"
 import "@elastic/eui/dist/eui_theme_light.css"
 import "../../assets/css/fonts.css"
 import "../../assets/css/override.css"
+import { EuiGlobalToastList } from "@elastic/eui"  
+import { useToasts } from "../../hooks/ui/useToasts"
+
 
 const customTheme = {
   ...euiVars,
@@ -28,6 +31,8 @@ const StyledMain = styled.main`
 `
 
 export default function Layout({ children }) {
+  const { toasts, removeToast } = useToasts()  
+
   return (
     <React.Fragment>
       <Helmet>
@@ -39,6 +44,13 @@ export default function Layout({ children }) {
         <StyledLayout>
           <Navbar />
           <StyledMain>{children}</StyledMain>
+          <EuiGlobalToastList
+            toasts={toasts}
+            dismissToast={(toastId) => removeToast(toastId)}
+            toastLifeTimeMs={3000}
+            side="right"
+            className="auth-toast-list"
+          />
         </StyledLayout>
       </ThemeProvider>
     </React.Fragment>

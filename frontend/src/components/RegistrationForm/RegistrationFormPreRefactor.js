@@ -1,6 +1,7 @@
 import React from "react"
 import { connect } from "react-redux"
 import { Actions as authActions, FETCHING_USER_FROM_TOKEN_SUCCESS } from "../../redux/auth"
+import { useNavigate } from "react-router-dom"
 import {
   EuiButton,
   EuiCheckbox,
@@ -11,11 +12,10 @@ import {
   EuiSpacer
 } from "@elastic/eui"
 import { Link } from "react-router-dom"
-
+import validation from "../../utils/validation"
 import { htmlIdGenerator } from "@elastic/eui/lib/services"
 import styled from "styled-components"
-
-import { useLoginAndRegistrationForm } from "../../hooks/ui/useLoginAndRegistrationoForm"
+import { extractErrorMessages } from "../../utils/errors"
 
 const RegistrationFormWrapper = styled.div`
   padding: 2rem;
@@ -24,21 +24,52 @@ const NeedAccountLink = styled.span`
   font-size: 0.8rem;
 `
 
-function RegistrationForm({ registerUser }) {
-  const {
-    form,
-    setForm,
-    errors,
-    setErrors,
-    isLoading,
-    getFormErrors,
-    setHasSubmitted,
-    handleInputChange,
-    validateInput,
-    agreedToTerms,
-    setAgreedToTerms,
-    handlePasswordConfirmChange,
-  } = useLoginAndRegistrationForm({ isLogin: false })
+function RegistrationForm({ authError, user, isLoading, isAuthenticated, registerUser }) {
+  const [form, setForm] = React.useState({
+    username: "",
+    email: "",
+    password: "",
+    passwordConfirm: ""
+  })
+  const [agreedToTerms, setAgreedToTerms] = React.useState(false)
+  const [errors, setErrors] = React.useState({})
+  const [hasSubmitted, setHasSubmitted] = React.useState(false)
+  const navigate = useNavigate()
+  const authErrorList = extractErrorMessages(authError)
+
+  // if the user is already authenticated, redirect them to the "/profile" page
+  React.useEffect(() => {
+    if (user?.email && isAuthenticated) {
+      navigate("/profile")
+    }
+  }, [user, navigate, isAuthenticated])
+
+  const validateInput = (label, value) => {
+    // grab validation function and run it on input if it exists
+    // if it doesn't exists, just assume the input is valid
+    const isValid = validation?.[label] ? validation?.[label]?.(value) : true
+    // set an error if the validation function did NOT return true
+    setErrors((errors) => ({ ...errors, [label]: !isValid }))
+  }
+
+  const setAgreedToTermsCheckbox = (e) => {
+    setAgreedToTerms(e.target.checked)
+  }
+
+  const handleInputChange = (label, value) => {
+    validateInput(label, value)
+
+    setForm((form) => ({ ...form, [label]: value }))
+  }
+
+  const handlePasswordConfirmChange = (value) => {
+    setErrors((errors) => ({
+      ...errors,
+      passwordConfirm: form.password !== value ? `Passwords do not match.` : null
+    }))
+
+    setForm((form) => ({ ...form, passwordConfirm: value }))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -73,6 +104,17 @@ function RegistrationForm({ registerUser }) {
     }
   }
 
+  const getFormErrors = () => {
+    const formErrors = []
+    if (errors.form) {
+      formErrors.push(errors.form)
+    }
+    if (hasSubmitted && authErrorList.length) {
+      return formErrors.concat(authErrorList)
+    }
+    return formErrors
+  }
+
   return (
     <RegistrationFormWrapper>
       <EuiForm
@@ -96,6 +138,7 @@ function RegistrationForm({ registerUser }) {
             isInvalid={Boolean(errors.email)}
           />
         </EuiFormRow>
+
         <EuiFormRow
           label="Username"
           helpText="Choose a username consisting solely of letters, numbers, underscores, and dashes."
@@ -111,6 +154,7 @@ function RegistrationForm({ registerUser }) {
             isInvalid={Boolean(errors.username)}
           />
         </EuiFormRow>
+
         <EuiFormRow
           label="Password"
           helpText="Enter your password."
@@ -118,7 +162,7 @@ function RegistrationForm({ registerUser }) {
           error={`Password must be at least 7 characters.`}
         >
           <EuiFieldPassword
-            placeholder="Password"
+            placeholder="••••••••••••"
             value={form.password}
             onChange={(e) => handleInputChange("password", e.target.value)}
             type="dual"
@@ -133,7 +177,7 @@ function RegistrationForm({ registerUser }) {
           error={`Passwords must match.`}
         >
           <EuiFieldPassword
-            placeholder="Confirm password"
+            placeholder="••••••••••••"
             value={form.passwordConfirm}
             onChange={(e) => handlePasswordConfirmChange(e.target.value)}
             type="dual"
@@ -146,14 +190,16 @@ function RegistrationForm({ registerUser }) {
           id={htmlIdGenerator()()}
           label="I agree to the terms and conditions."
           checked={agreedToTerms}
-          onChange={(e) => setAgreedToTerms(e.target.checked)}
+          onChange={(e) => setAgreedToTermsCheckbox(e)}
         />
         <EuiSpacer />
-        <EuiButton type="submit" isLoading={isLoading} fill>
+        <EuiButton type="submit" fill>
           Sign Up
         </EuiButton>
       </EuiForm>
+
       <EuiSpacer size="xl" />
+
       <NeedAccountLink>
         Already have an account? Log in <Link to="/login">here</Link>.
       </NeedAccountLink>
@@ -161,6 +207,14 @@ function RegistrationForm({ registerUser }) {
   )
 }
 
-export default connect(null, {
-  registerUser: authActions.registerNewUser,
-})(RegistrationForm)
+export default connect(
+  (state) => ({
+    authError: state.auth.error,
+    isLoading: state.auth.isLoading,
+    isAuthenticated: state.auth.isAuthenticated,
+    user: state.auth.user
+  }),
+  {
+    registerUser: authActions.registerNewUser
+  }
+)(RegistrationForm)

@@ -1,6 +1,6 @@
 import React from "react"
-import { useAuthenticatedUser } from "../../hooks/auth/useAuthenticatedUser"
-
+import { connect } from "react-redux"
+import { Actions as authActions } from "../../redux/auth"
 import {
   EuiAvatar,
   EuiIcon,
@@ -15,16 +15,14 @@ import {
   EuiFlexItem,
   EuiLink
 } from "@elastic/eui"
-
-
 import { Link, useNavigate } from "react-router-dom"
 import loginIcon from "../../assets/img/loginIcon.svg"
 import styled from "styled-components"
-import { UserAvatar } from ".."
 
 const LogoSection = styled(EuiHeaderLink)`
   padding: 0 2rem;
 `
+
 
 const AvatarMenu = styled.div`
   display: flex;
@@ -36,10 +34,9 @@ const AvatarMenu = styled.div`
   }
 `
 
-export default function Navbar() {
-  const navigate = useNavigate()
+function Navbar({ user, logUserOut, ...props }) {
   const [avatarMenuOpen, setAvatarMenuOpen] = React.useState(false)
-  const { user, logUserOut } = useAuthenticatedUser()
+  const navigate = useNavigate()
 
   const toggleAvatarMenu = () => setAvatarMenuOpen(!avatarMenuOpen)
 
@@ -50,7 +47,6 @@ export default function Navbar() {
     logUserOut()
     navigate("/")
   }
-  
 
   const avatarButton = (
     <EuiHeaderSectionItemButton
@@ -58,7 +54,12 @@ export default function Navbar() {
       onClick={() => user?.profile && toggleAvatarMenu()}
     >
       {user?.profile ? (
-        <UserAvatar size="l" user={user} initialsLength={2} />
+        <EuiAvatar
+          size="l"
+          name={user.profile.full_name || user.username || "Anonymous"}
+          initialsLength={2}
+          imageUrl={user.profile.image || null}
+        />
       ) : (
         <Link to="/login">
           <EuiAvatar size="l" color="#1E90FF" name="user" imageUrl={loginIcon} />
@@ -72,8 +73,12 @@ export default function Navbar() {
 
     return (
       <AvatarMenu>
-        
-        <UserAvatar size="xl" user={user} initialsLength={2} />
+        <EuiAvatar
+          size="xl"
+          name={user.profile.full_name || user.username || "Anonymous"}
+          initialsLength={2}
+          imageUrl={user.profile.image || null}
+        />
         <EuiFlexGroup direction="column" className="avatar-actions">
           <EuiFlexItem grow={1}>
             <p>
@@ -97,7 +102,8 @@ export default function Navbar() {
   }
 
   return (
-    <EuiHeader>
+
+    <EuiHeader style={props.style || {}}>
       <EuiHeaderSection>
         <EuiHeaderSectionItem border="right">
           <LogoSection href="/">
@@ -110,7 +116,7 @@ export default function Navbar() {
               Find Cleaners
             </EuiHeaderLink>
 
-            <EuiHeaderLink iconType="tag" onClick={() => navigate("/cleaning-jobs")}>
+            <EuiHeaderLink iconType="tag" href="#">
               Find Jobs
             </EuiHeaderLink>
 
@@ -124,18 +130,21 @@ export default function Navbar() {
       <EuiHeaderSection>
         <EuiPopover
           id="avatar-menu"
+          ownFocus
           isOpen={avatarMenuOpen}
           closePopover={closeAvatarMenu}
-          anchorPosition="downRight"
+          anchorPosition="downLeft"
           button={avatarButton}
-          panelPaddingSize="l"
+          panelPaddingSize="m"
         >
           {renderAvatarMenu()}
         </EuiPopover>
       </EuiHeaderSection>
     </EuiHeader>
+
   )
-
-
 }
 
+export default connect((state) => ({ user: state.auth.user }), {
+  logUserOut: authActions.logUserOut
+})(Navbar)

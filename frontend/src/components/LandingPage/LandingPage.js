@@ -8,7 +8,7 @@ import {
   EuiFlexItem
 } from "@elastic/eui"
 import { Carousel, CarouselTitle } from "../../components"
-import { useCarousel } from "../../hooks/useCarousel"
+import { useCarousel } from "../../hooks/ui/useCarousel"
 import heroGirl from "../../assets/img/HeroGirl.svg"
 import dorm from "../../assets/img/Bed.svg"
 import bedroom from "../../assets/img/Bedroom.svg"

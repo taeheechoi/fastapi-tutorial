@@ -11,3 +11,4 @@ export { default as RegistrationPage } from "./RegistrationPage/RegistrationPage
 export { default as LoginForm } from "./LoginForm/LoginForm"  
 export { default as RegistrationForm } from "./RegistrationForm/RegistrationForm"
 export { default as ProtectedRoute } from "./ProtectedRoute/ProtectedRoute"
+export { default as UserAvatar } from "./UserAvatar/UserAvatar"
