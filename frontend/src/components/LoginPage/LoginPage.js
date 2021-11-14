@@ -6,10 +6,10 @@ import {
   EuiPageContentBody,
   EuiPageHeader,
   EuiPageHeaderSection,
-  EuiTitle,
+  EuiTitle
 } from "@elastic/eui"
+import { LoginForm } from "../../components"
 import styled from "styled-components"
-import { LoginForm } from ".."
 
 const StyledEuiPage = styled(EuiPage)`
   flex: 1;
@@ -45,4 +45,3 @@ export default function LoginPage() {
     </StyledEuiPage>
   )
 }
-

@@ -1,16 +1,25 @@
-import React, { Fragment} from "react"
+import React from "react"
 import { EuiPanel } from "@elastic/eui"
 import { motion, AnimatePresence } from "framer-motion"
 import styled from "styled-components"
 
 const CarouselWrapper = styled.div`
-  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  flex: 1;
+  min-height: 450px;
+  min-width: 450px;
+
+  @media screen and (max-width: 450px) {
+    min-height: calc(100vw - 25px);
+    min-width: calc(100vw - 25px);
+  }
 `
 const StyledEuiPanel = styled(EuiPanel)`
+  /* width: 450px;
+  height: 450px; */
   max-width: 450px;
   max-height: 450px;
   border-radius: 50%;
@@ -21,22 +30,21 @@ const StyledEuiPanel = styled(EuiPanel)`
   }
 
   @media screen and (max-width: 450px) {
-    height: calc(100vw - 25px);
-    width: calc(100vw - 25px);
-  }  
+    min-height: calc(100vw - 25px);
+    min-width: calc(100vw - 25px);
+  }
 `
 
-const transitionDuration = 0.4
+const transitionDuration = 0.3
 const transitionEase = [0.68, -0.55, 0.265, 1.55]
 
-export default function Carousel({ items = [], current }) {
-
+export default function Carousel({ items = [], current, ...props }) {
   return (
-    <CarouselWrapper>
-       <AnimatePresence exitBeforeEnter>
+    <CarouselWrapper {...props}>
+      <AnimatePresence exitBeforeEnter>
         {items.map((item, i) =>
           current === i ? (
-            <Fragment key={i}>
+            <React.Fragment key={i}>
               <motion.div
                 key={i}
                 initial="left"
@@ -51,11 +59,10 @@ export default function Carousel({ items = [], current }) {
               >
                 <StyledEuiPanel paddingSize="l">{item.content}</StyledEuiPanel>
               </motion.div>
-            </Fragment>
+            </React.Fragment>
           ) : null
         )}
       </AnimatePresence>
     </CarouselWrapper>
   )
 }
-

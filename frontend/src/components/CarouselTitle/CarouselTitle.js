@@ -85,4 +85,3 @@ export default function CarouselTitle({ items, current }) {
     </AnimatedTitle>
   )
 }
-

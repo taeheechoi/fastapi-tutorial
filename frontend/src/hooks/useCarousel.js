@@ -15,4 +15,3 @@ export function useCarousel(items, interval) {
 
   return { current, setShouldAnimate, timeoutRef }
 }
-
