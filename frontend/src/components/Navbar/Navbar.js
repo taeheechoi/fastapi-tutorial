@@ -23,6 +23,7 @@ const LogoSection = styled(EuiHeaderLink)`
   padding: 0 2rem;
 `
 
+
 const AvatarMenu = styled.div`
   display: flex;
   justify-content: space-between;
@@ -101,6 +102,7 @@ function Navbar({ user, logUserOut, ...props }) {
   }
 
   return (
+
     <EuiHeader style={props.style || {}}>
       <EuiHeaderSection>
         <EuiHeaderSectionItem border="right">
@@ -133,12 +135,13 @@ function Navbar({ user, logUserOut, ...props }) {
           closePopover={closeAvatarMenu}
           anchorPosition="downLeft"
           button={avatarButton}
-          panelPaddingSize="l"
+          panelPaddingSize="m"
         >
           {renderAvatarMenu()}
         </EuiPopover>
       </EuiHeaderSection>
     </EuiHeader>
+
   )
 }
 

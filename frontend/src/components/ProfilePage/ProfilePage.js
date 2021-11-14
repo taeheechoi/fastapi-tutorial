@@ -23,7 +23,6 @@ const StyledEuiPageHeader = styled(EuiPageHeader)`
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 2rem;
 
   & h1 {
     font-size: 3.5rem;
