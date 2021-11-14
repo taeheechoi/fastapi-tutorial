@@ -1,6 +1,6 @@
 import pathlib
 import sys
-import os  
+import os
 
 
 import alembic
@@ -42,22 +42,16 @@ def run_migrations_online() -> None:
             default_conn.execute(f"DROP DATABASE IF EXISTS {POSTGRES_DB}_test")
             default_conn.execute(f"CREATE DATABASE {POSTGRES_DB}_test")
 
-
     connectable = config.attributes.get("connection", None)
-    config.set_main_option("sqlalchemy.url", DB_URL)  
+    config.set_main_option("sqlalchemy.url", DB_URL)
 
     if connectable is None:
         connectable = engine_from_config(
-            config.get_section(config.config_ini_section),
-            prefix="sqlalchemy.",
-            poolclass=pool.NullPool,
+            config.get_section(config.config_ini_section), prefix="sqlalchemy.", poolclass=pool.NullPool,
         )
-    
+
     with connectable.connect() as connection:
-        alembic.context.configure(
-            connection=connection,
-            target_metadata=None
-        )
+        alembic.context.configure(connection=connection, target_metadata=None)
 
         with alembic.context.begin_transaction():
             alembic.context.run_migrations()
@@ -71,7 +65,6 @@ def run_migrations_offline() -> None:
     if os.environ.get("TESTING"):
         raise DatabaseError("Running testing migrations offline currently not permitted.")
 
-
     alembic.context.configure(url=str(DATABASE_URL))
 
     with alembic.context.begin_transaction():
@@ -84,4 +77,3 @@ if alembic.context.is_offline_mode():
 else:
     logger.info("Running migrations online")
     run_migrations_online()
-
